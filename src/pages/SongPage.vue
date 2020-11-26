@@ -60,9 +60,28 @@
       </el-form>
       <span slot="footer">
           <el-button size="mini" @click="centerDialogVisible=false">取消</el-button>
-          <el-button size="mini" @click="submitSong">确定</el-button>
+          <el-button size="mini" @click="addSong">确定</el-button>
       </span>
     </el-dialog>
+
+    <el-dialog title="修改歌曲" :visible.sync="editVisible" width="400px" center>
+        <el-form :model="form" ref="form" label-width="80px">
+          <el-form-item prop="name" label="歌手-歌曲" size="mini">
+            <el-input v-model="form.name" placeholder="歌手-歌名"></el-input>
+          </el-form-item>
+          <el-form-item prop="introduction" label="专辑" size="mini">
+            <el-input v-model="form.introduction" placeholder="专辑"></el-input>
+          </el-form-item>
+          <el-form-item prop="lyric" label="歌词" size="mini">
+            <el-input v-model="form.lyric" placeholder="歌词" type="textarea"></el-input>
+          </el-form-item>
+        </el-form>
+        <span slot="footer">
+            <el-button size="mini" @click="editVisible=false">取消</el-button>
+            <el-button size="mini" @click="submitSong">确定</el-button>
+        </span>
+    </el-dialog>
+
     <el-dialog title="删除歌手" :visible.sync="delVisible" width="400px" center>
       <div align="center">确认删除吗?</div>
       <span slot="footer">
@@ -74,12 +93,14 @@
 </template>
 
 <script>
-import {getAllSinger, updateSinger, setSinger, delSinger} from '../api/index'
+import {} from '../api/index'
 import {mixin} from '../mixins/index'
 
 export default {
   mixins: [mixin],
   created () {
+    this.singerId = this.$route.query.id
+    this.singerName = this.$route.query.name
     this.getData()
   },
   computed: {
@@ -106,13 +127,21 @@ export default {
   },
   data () {
     return {
+      singerId: '', // 歌手id
+      singerName: '', // 歌手名
       centerDialogVisible: false,
       delVisible: false,
+      editVisible: false,
       registerForm: {
         name: '',
-        sex: '',
-        birth: '',
-        location: '',
+        singerName: '',
+        lyric: '',
+        introduction: ''
+      },
+      form: {
+        id: '',
+        name: '',
+        lyric: '',
         introduction: ''
       },
       rules: [],
@@ -126,49 +155,51 @@ export default {
     }
   },
   methods: {
-    submitSinger () {
-      if (this.registerForm.id) {
-        console.log('update')
-        updateSinger(this.registerForm).then(res => {
-          if (res.code === 1) {
-            this.notify(res.msg, 'success')
-            this.getData()
-          }
-        }).catch(err => {
-          console.log(err)
-        })
-      } else {
-        console.log('insert')
-        setSinger(this.registerForm).then(res => {
-          if (res.code === 1) {
-            this.notify(res.msg, 'success')
-            this.getData()
-          }
-        }).catch(err => {
-          console.log(err)
-        })
+    // 添加歌曲
+    addSong () {
+      let _this = this
+      var form = new FormData(document.getElementById('tf'))
+      form.append('singerId', this.singerId)
+      form.set('name', this.singerName + '-' + form.get('name'))
+      if (!form.get('lyric')) {
+        form.set('lyric', '[00:00:00]暂无歌词')
       }
-      this.centerDialogVisible = false
+      var req = new XMLHttpRequest()
+      req.onreadystatechange = function () {
+        if (req.readyState === 4 && req.status === 200) {
+          let res = JSON.parse(req.response)
+          if (res.code) {
+            _this.getData()
+            _this.registerForm = {}
+            _this.notify(res.msg, 'success')
+          } else {
+            _this.notify('保存失败', 'error')
+          }
+        }
+      }
+      req.open('post', `${_this.$store.state.HOST}/song/add`, false)
+      req.send(form)
+      _this.centerDialogVisible = false
     },
     deleSinger () {
-      delSinger(this.idx).then(res => {
-        if (res.code === 1) {
-          this.notify(res.msg, 'success')
-          this.getData()
-        }
-      }).catch(err => {
-        console.log(err)
-      })
+      // delSinger(this.idx).then(res => {
+      //   if (res.code === 1) {
+      //     this.notify(res.msg, 'success')
+      //     this.getData()
+      //   }
+      // }).catch(err => {
+      //   console.log(err)
+      // })
       this.delVisible = false
     },
     handleEdit (row) {
-      this.centerDialogVisible = true
-      this.registerForm.id = row.id
-      this.registerForm.name = row.name
-      this.registerForm.sex = row.sex
-      this.registerForm.birth = row.birth
-      this.registerForm.location = row.location
-      this.registerForm.introduction = row.introduction
+      // this.centerDialogVisible = true
+      // this.registerForm.id = row.id
+      // this.registerForm.name = row.name
+      // this.registerForm.sex = row.sex
+      // this.registerForm.birth = row.birth
+      // this.registerForm.location = row.location
+      // this.registerForm.introduction = row.introduction
     },
     dialogClose () {
       this.registerForm = {
@@ -180,25 +211,21 @@ export default {
       }
     },
     getData () {
-      this.tableData = []
-      this.tempData = []
-      getAllSinger().then(res => {
-        if (res.code === 1) {
-          this.tempData = res.data
-          this.tableData = res.data
-          console.log('数据初始化:' + JSON.stringify(this.tableData))
-        }
-      })
+      // this.tableData = []
+      // this.tempData = []
+      // getAllSinger().then(res => {
+      //   if (res.code === 1) {
+      //     this.tempData = res.data
+      //     this.tableData = res.data
+      //     console.log('数据初始化:' + JSON.stringify(this.tableData))
+      //   }
+      // })
     },
     uploadUrl (id) {
       return `${this.$store.state.HOST}/singer/updateSingerPic?id=${id}`
     },
     handleCurrentChange (val) {
       this.currentPage = val
-    },
-    // 转向歌曲页面
-    songEdit (id, name) {
-      this.$router.push({path: `/SongPage`, query: {id, name}})
     }
   }
 }
