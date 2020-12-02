@@ -93,7 +93,7 @@
 </template>
 
 <script>
-import {} from '../api/index'
+import {getSongBysingerId} from '../api/index'
 import {mixin} from '../mixins/index'
 
 export default {
@@ -168,6 +168,7 @@ export default {
       req.onreadystatechange = function () {
         if (req.readyState === 4 && req.status === 200) {
           let res = JSON.parse(req.response)
+          console.log('res:' + JSON.stringify(res.response))
           if (res.code) {
             _this.getData()
             _this.registerForm = {}
@@ -211,15 +212,13 @@ export default {
       }
     },
     getData () {
-      // this.tableData = []
-      // this.tempData = []
-      // getAllSinger().then(res => {
-      //   if (res.code === 1) {
-      //     this.tempData = res.data
-      //     this.tableData = res.data
-      //     console.log('数据初始化:' + JSON.stringify(this.tableData))
-      //   }
-      // })
+      getSongBysingerId(this.singerId).then(res => {
+        if (res.code === 1) {
+          this.tempData = res.data
+          this.tableData = res.data
+          this.currentPage = 1
+        }
+      })
     },
     uploadUrl (id) {
       return `${this.$store.state.HOST}/singer/updateSingerPic?id=${id}`

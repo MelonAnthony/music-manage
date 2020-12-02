@@ -211,6 +211,7 @@ export default {
         if (res.code === 1) {
           this.tempData = res.data
           this.tableData = res.data
+          this.currentPage = 1
           console.log('数据初始化:' + JSON.stringify(this.tableData))
         }
       })

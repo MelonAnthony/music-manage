@@ -5,7 +5,8 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
   state: {
-    HOST: 'http://182.61.21.222:8888'
+    HOST: 'http://localhost:8888'
+    // HOST: 'http://182.61.21.222:8888'
   }
 })
 
