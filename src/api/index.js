@@ -11,3 +11,5 @@ export const delSinger = (id) => get(`singer/delete/${id}`)
 
 // ==========歌曲相关=====================
 export const getSongBysingerId = (id) => get(`song/songOfSingerId/${id}`)
+export const updateSong = (params) => post(`song/update`, params)
+export const delSong = (id) => get(`song/delete/${id}`)

@@ -13,7 +13,7 @@
       <el-table-column label="歌曲图片" width="110" align="center">
         <template slot-scope="scope">
           <div class="song-img">
-            <img :src="getUrl(scope.row.pic)" style="width: 100%;"/>
+            <img :src="getUrl(scope.row.pic)" style="width: 100%;height: 100%"/>
           </div>
           <el-upload :action="uploadUrl(scope.row.id)" :before-upload="beforeAvatorUpload" :on-success="handleAvatorSuccess">
             <el-button size="mini">更新图片</el-button>
@@ -22,7 +22,7 @@
       </el-table-column>
       <el-table-column label="歌名" prop="name" width="120px" align="center"></el-table-column>
       <el-table-column label="专辑" prop="introduction" width="120px" align="center"></el-table-column>
-      <el-table-column label="歌词" width="110" align="center">
+      <el-table-column label="歌词" align="center">
         <template slot-scope="scope">
           {{scope.row.lyric}}
         </template>
@@ -31,7 +31,7 @@
         <template slot-scope="scope">
           <el-button-group>
             <el-button icon="el-icon-edit" @click="handleEdit(scope.row)"></el-button>
-            <el-button type="danger" icon="el-icon-delete" @click="handleDelete(scope.row.id)"></el-button>
+            <el-button type="danger" icon="el-icon-delete" @click="handleDelete(scope.row.id,scope.row.url)"></el-button>
           </el-button-group>
         </template>
       </el-table-column>
@@ -78,7 +78,7 @@
         </el-form>
         <span slot="footer">
             <el-button size="mini" @click="editVisible=false">取消</el-button>
-            <el-button size="mini" @click="submitSong">确定</el-button>
+            <el-button size="mini" @click="editSave">确定</el-button>
         </span>
     </el-dialog>
 
@@ -86,14 +86,14 @@
       <div align="center">确认删除吗?</div>
       <span slot="footer">
           <el-button size="mini" @click="delVisible=false">取消</el-button>
-          <el-button size="mini" @click="deleSinger">确定</el-button>
+          <el-button size="mini" @click="deleSong">确定</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import {getSongBysingerId} from '../api/index'
+import {getSongBysingerId, updateSong, delSong} from '../api/index'
 import {mixin} from '../mixins/index'
 
 export default {
@@ -151,6 +151,7 @@ export default {
       pageSize: 5,
       currentPage: 1,
       idx: 0,
+      fileName: '',
       multipleSelection: []
     }
   },
@@ -182,32 +183,47 @@ export default {
       req.send(form)
       _this.centerDialogVisible = false
     },
-    deleSinger () {
-      // delSinger(this.idx).then(res => {
-      //   if (res.code === 1) {
-      //     this.notify(res.msg, 'success')
-      //     this.getData()
-      //   }
-      // }).catch(err => {
-      //   console.log(err)
-      // })
+    editSave () {
+      updateSong(this.form).then(res => {
+        if (res.code === 1) {
+          this.notify(res.msg, 'success')
+          this.getData()
+        } else {
+          this.notify(res.msg, 'error')
+          this.getData()
+        }
+      }).catch(err => {
+        console.log(err)
+        this.notify('网络故障', 'error')
+      })
+      this.editVisible = false
+    },
+    deleSong () {
+      delSong(this.idx).then(res => {
+        if (res.code === 1) {
+          this.notify(res.msg, 'success')
+          this.getData()
+        }
+      }).catch(err => {
+        console.log(err)
+      })
       this.delVisible = false
     },
     handleEdit (row) {
-      // this.centerDialogVisible = true
-      // this.registerForm.id = row.id
-      // this.registerForm.name = row.name
-      // this.registerForm.sex = row.sex
-      // this.registerForm.birth = row.birth
-      // this.registerForm.location = row.location
-      // this.registerForm.introduction = row.introduction
+      this.editVisible = true
+      this.form = {
+        id: row.id,
+        name: row.name,
+        introduction: row.introduction,
+        lyric: row.lyric
+      }
     },
     dialogClose () {
+      console.log('closed')
       this.registerForm = {
         name: '',
-        sex: '',
-        birth: '',
-        location: '',
+        singerName: '',
+        lyric: '',
         introduction: ''
       }
     },
