@@ -15,6 +15,18 @@
           <div class="song-img">
             <img :src="getUrl(scope.row.pic)" style="width: 100%;"/>
           </div>
+          <div class="play" @click="setSongUrl(scope.row.url,scope.row.name)">
+            <div v-if="toggle == scope.row.name">
+              <svg class="icon">
+                <use xlink:href="#icon-zanting"></use>
+              </svg>
+            </div>
+            <div v-if="toggle != scope.row.name">
+              <svg class="icon">
+                <use xlink:href="#icon-bofanganniu"></use>
+              </svg>
+            </div>
+          </div>
         </template>
       </el-table-column>
       <el-table-column label="歌名" prop="name" width="120px" align="center"></el-table-column>
@@ -107,8 +119,10 @@
 </template>
 
 <script>
-import {getSongBysingerId, updateSong, delSong} from '../api/index'
+import {mapGetters} from 'vuex'
+import '@/assets/js/iconfont.js'
 import {mixin} from '../mixins/index'
+import {getSongBysingerId, updateSong, delSong} from '../api/index'
 
 export default {
   mixins: [mixin],
@@ -118,6 +132,9 @@ export default {
     this.getData()
   },
   computed: {
+    ...mapGetters([
+      'isPlay'
+    ]),
     // 计算当前搜索结果表里的数据
     data () {
       console.log('computed')
@@ -166,7 +183,9 @@ export default {
       currentPage: 1,
       idx: 0,
       fileName: '',
-      multipleSelection: []
+      multipleSelection: [],
+      toggle: '', // 播放器的图标状态
+      currentToggle: ''
     }
   },
   methods: {
@@ -294,7 +313,24 @@ export default {
       } else {
         this.notify('上传失败', 'error')
       }
+    },
+    // 设置播放歌曲
+    setSongUrl (url, name) {
+      this.toggle = name
+      this.$store.commit('setUrl', this.$store.state.HOST + url)
+      if (this.isPlay) {
+        this.$store.commit('setIsPlay', false)
+        if (this.toggle === this.currentToggle) {
+          this.toggle = ''
+        }
+      } else {
+        this.$store.commit('setIsPlay', true)
+        this.currentToggle = name
+      }
     }
+  },
+  destroyed () {
+    this.$store.commit('setIsPlay', false)
   }
 }
 </script>
@@ -317,5 +353,28 @@ export default {
   .minipagination{
     display: flex;
     justify-content: center;
+  }
+  .play{
+    position: absolute;
+    z-index: 100;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    top: 0px;
+    left: 0px;
+  }
+  .icon{
+    width: 2em;
+    height: 2em;
+    color: white;
+    fill:currentColor;
+    overflow: hidden;
+  }
+  .play:hover{
+    background:#000;
+    opacity:.7;
   }
 </style>
