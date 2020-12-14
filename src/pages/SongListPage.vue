@@ -52,7 +52,7 @@
           <el-input v-model="registerForm.title" aria-placeholder="标题"></el-input>
         </el-form-item>
         <el-form-item prop="style" label="风格" size="mini">
-          <el-input v-model="registerForm.location" aria-placeholder="风格"></el-input>
+          <el-input v-model="registerForm.style" aria-placeholder="风格"></el-input>
         </el-form-item>
         <el-form-item prop="introduction" label="简介" size="mini">
           <el-input v-model="registerForm.introduction" aria-placeholder="简介" type="textarea"></el-input>
@@ -97,7 +97,7 @@ export default {
       } else {
         this.tableData = []
         for (let item of this.tempData) {
-          if (item.name.includes(this.selectWord)) {
+          if (item.title.includes(this.selectWord)) {
             this.tableData.push(item)
           }
         }
@@ -112,7 +112,6 @@ export default {
       registerForm: {
         id: '',
         title: '',
-        pic: '/img/SongListPic/123.jpg',
         style: '',
         introduction: ''
       },
@@ -174,7 +173,7 @@ export default {
       this.registerForm = {
         id: '',
         title: '',
-        pic: '/img/SongListPic/123.jpg',
+        pic: '',
         style: '',
         introduction: ''
       }
@@ -199,7 +198,7 @@ export default {
     },
     // 转向歌曲页面
     songEdit (id, name) {
-      this.$router.push({path: `/SongPage`, query: {id, name}})
+      this.$router.push({path: `/ListSongPage`, query: {id}})
     }
   }
 }
@@ -211,7 +210,6 @@ export default {
   }
   .songList-img{
     width: 100%;
-    height: 80px;
     border-radius: 5px;
     margin-bottom: 5px;
     overflow: hidden;
