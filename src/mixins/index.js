@@ -60,6 +60,7 @@ export const mixin = {
     // 传递需要删除的项
     handleSelectionChange (val) {
       this.multipleSelection = val
+      console.log('选中:' + JSON.stringify(this.multipleSelection))
     },
     // 批量删除已选择的项
     delAll () {

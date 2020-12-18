@@ -197,7 +197,7 @@ export default {
       this.currentPage = val
     },
     // 转向歌曲页面
-    songEdit (id, name) {
+    songEdit (id) {
       this.$router.push({path: `/ListSongPage`, query: {id}})
     }
   }

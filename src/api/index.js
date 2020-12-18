@@ -13,6 +13,8 @@ export const delSinger = (id) => get(`singer/delete/${id}`)
 export const getSongBysingerId = (id) => get(`song/songOfSingerId/${id}`)
 export const updateSong = (params) => post(`song/update`, params)
 export const delSong = (id) => get(`song/delete/${id}`)
+export const getSongById = (id) => get(`song/selectByPrimaryKey/${id}`)
+export const getAllSong = () => get(`song/allSong`)
 
 // ==========歌单相关=====================  updateSongList, setSongList, delSongList
 export const getAllSongList = () => get(`songList/allSongList`)
@@ -20,3 +22,9 @@ export const updateSongList = (params) => post(`songList/update`, params)
 export const setSongList = (params) => post(`songList/insert`, params)
 export const delSongList = (id) => get(`songList/delete/${id}`)
 export const selectByPrimaryKey = (id) => get(`songList/selectByPrimaryKey/${id}`)
+
+// ==========歌单歌曲相关=====================
+export const insertSongList = (params) => post(`ListSong/insert`, params)
+export const deleteSongList = (songListId, singerId) => get(`ListSong/delete/${songListId}/${singerId}`)
+export const getSongFormListById = (songListId) => get(`ListSong/selectByPrimaryKey/${songListId}`)
+export const getallListSong = () => get(`ListSong/allSongList`)
